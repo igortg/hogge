@@ -1,5 +1,9 @@
-from io import StringIO
-from hogge.racemonitor import RaceMonitor
+import pytest
+
+
+@pytest.fixture(scope="module")
+def irsdk():
+    return IRSDKMock()
 
 
 class IRSDKMock(object):
@@ -10,7 +14,7 @@ class IRSDKMock(object):
 
 
     def __getitem__(self, item):
-        return MOCK_DATA[self._query_index][item]
+        return MOCK_DATA[self._query_index].get(item, None)
 
 
     def startup(self):
@@ -21,15 +25,6 @@ class IRSDKMock(object):
     def is_connected(self):
         self._query_index += 1
         return self._query_index < len(MOCK_DATA)
-
-
-def test_hogge():
-    output = StringIO()
-    ir_sdk_mock = IRSDKMock()
-    hogge = RaceMonitor(ir_sdk_mock, output)
-    hogge.start()
-    print(output.getvalue())
-    assert False
 
 
 MOCK_DATA = []

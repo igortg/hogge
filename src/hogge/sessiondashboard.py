@@ -1,14 +1,20 @@
-import csv
+from collections import namedtuple
+import xlsxwriter
+
+
+DashboardColumn = namedtuple("Dashboard", ["measure_id", "title", "type"])
 
 class SessionDashboard(object):
 
-    def __init__(self, output_stream):
-        self._stream = output_stream
+    def __init__(self, excel_filename):
+        self._workbook = xlsxwriter.Workbook(excel_filename)
+        self._worksheet = self._workbook.add_worksheet()
         self._columns = []
         self._laps = []
 
-    def add_column(self, measure_id, title, typecode):
-        self._columns.append((measure_id, title, typecode))
+
+    def add_column(self, *kwargs):
+        self._columns.append(DashboardColumn(*kwargs))
 
 
     def save_lap(self, lap_register):
@@ -19,17 +25,17 @@ class SessionDashboard(object):
 
 
     def _write_header(self):
-        self._stream.write("\t".join([col[1] for col in self._columns]))
-        self._stream.write(ENDLINE)
+        for i, column in enumerate(self._columns):
+            self._worksheet.write(0, i, column.title)
 
 
     def _write_lap(self, lap_register):
-        row = []
-        for measure_id, _, typecode in self._columns:
-            measure_text = self._to_string(lap_register[measure_id], typecode)
-            row.append(measure_text)
-        self._stream.write("\t".join([text for text in row]))
-        self._stream.write(ENDLINE)
+        # row = []
+        # for measure_id, _, typecode in self._columns:
+        #     measure_text = self._to_string(lap_register[measure_id], typecode)
+        #     row.append(measure_text)
+        # self._stream.write("\t".join([text for text in row]))
+        # self._stream.write(ENDLINE)
 
 
     def _to_string(self, param, typecode):

@@ -1,42 +1,50 @@
 from time import sleep
-from hogge.sessiondashboard import SessionDashboard
 
 
 class RaceMonitor(object):
 
     QUERY_INTERVAL = 0.1
 
-    def __init__(self, ir_sdk, output_stream):
-        self._ir_sdk = ir_sdk
-        dashboard = SessionDashboard(output_stream)
-        dashboard.add_column("lap", "Lap", None)
-        dashboard.add_column("lap_time", "Time", None)
-        dashboard.add_column("fuel", "Fuel", None)
-        self._session_table = dashboard
+    def __init__(self, telemeter, dashboard):
+        """
+
+        :param IRSDK telemeter: measure car and session data
+
+        :param XlsSessionDashboard dashboard: store session data and write it to disk
+        """
+        self._telemeter = telemeter
+        self._session_dashboard = dashboard
 
 
     def start(self):
-        ir = self._ir_sdk
-        if not ir.startup():
+        telemeter = self._telemeter
+        if not telemeter.startup():
             raise RuntimeError("Couldn't start iRacing connection")
-        else:
-            print("Connected to iRacing")
-        current_lap = ir["Lap"]
-        while ir.is_connected:
-            ir_lap = ir["Lap"]
-            if ir_lap == current_lap:
+        current_lap = telemeter["Lap"]
+        while telemeter.is_connected:
+            ir_lap = telemeter["Lap"]
+            if ir_lap > current_lap:
+                self.save_lap(current_lap)
+                current_lap = ir_lap
+            else:
                 sleep(self.QUERY_INTERVAL)
+
+
+
+    def wait_for_telemeter(self):
+        while not self._telemeter.startup():
+            sleep(3)
+
+
+    def save_lap(self, lap):
+        telemeter = self._telemeter
+        lap_register = {"Lap": lap}
+        for measure_id, _, _ in self._session_dashboard.columns:
+            if measure_id in ["Lap", "LapLastLapTime"]:
                 continue
-            self.save_lap(current_lap, ir)
-            current_lap = ir_lap
-
-
-    def save_lap(self, lap, ir_data):
-        lap_register = dict(
-            lap=lap,
-            fuel=ir_data["FuelLevel"],
-        )
+            value = telemeter[measure_id]
+            if value is not None:
+                lap_register[measure_id] = value
         sleep(1)
-        lap_register["lap_time"] = ir_data["LapLastLapTime"]
-
-        self._session_table.save_lap(lap_register)
+        lap_register["LapLastLapTime"] = telemeter["LapLastLapTime"]
+        self._session_dashboard.save_lap(lap_register)
