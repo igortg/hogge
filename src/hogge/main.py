@@ -28,10 +28,10 @@ def main():
     try:
         monitor.start()
     finally:
-        if not os.path.isdir(HOGGE_DATA_DIR):
-            os.mkdir(HOGGE_DATA_DIR)
         xls_basename = "{0}.xlsx".format(dashboard.name)
         xls_filepath = os.path.join(os.path.expanduser(HOGGE_DATA_DIR), xls_basename)
+        if not os.path.isdir(os.path.dirname(xls_filepath)):
+            os.mkdir(os.path.dirname(xls_filepath))
         log("Saving session at {0}\{1}\n".format(HOGGE_DATA_DIR, xls_basename))
         writer = XlsDashboardWriter(xls_filepath)
         writer.write(dashboard)
