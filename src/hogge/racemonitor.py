@@ -71,5 +71,5 @@ class RaceMonitor(object):
         car = telemeter["DriverInfo"]["Drivers"][0]["CarScreenNameShort"]
         session_type = telemeter["SessionInfo"]["Sessions"][0]["SessionType"]
         track = telemeter["WeekendInfo"]["TrackName"]
-        time = datetime.now().strftime("%Y%M%d-%H%m")
+        time = datetime.now().strftime("%Y%m%d-%H%M")
         return "{0} @ {1} - {2} ({3})".format(car, track, time, session_type)
