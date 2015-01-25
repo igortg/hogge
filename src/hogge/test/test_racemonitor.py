@@ -1,10 +1,11 @@
 from hogge.racemonitor import RaceMonitor
-from hogge.xlssessiondashboard import XlsSessionDashboard
+from hogge.sessiondashboard import SessionDashboard
 
 
-def test_racemonitor(tmpdir, irsdk):
-    xls_file = tmpdir.mkdir("hogge").join("session.xlsx")
-    dashboard = XlsSessionDashboard.create_default_dashboard(str(xls_file))
+def test_racemonitor(irsdk):
+    dashboard = SessionDashboard.create_default_dashboard()
     hogge = RaceMonitor(irsdk, dashboard)
     hogge.start()
-    import os; os.startfile(str(xls_file))
+
+    lap1 = dashboard.laps[1]
+    assert round(lap1["LapLastLapTime"], 2) == 68.92

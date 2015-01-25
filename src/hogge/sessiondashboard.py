@@ -1,51 +1,67 @@
 from collections import namedtuple
-import xlsxwriter
 
 
-DashboardColumn = namedtuple("Dashboard", ["measure_id", "title", "type"])
+DashboardColumn = namedtuple("DashboardColumn", ["measure_id", "title", "datatype"])
 
 class SessionDashboard(object):
 
-    def __init__(self, excel_filename):
-        self._workbook = xlsxwriter.Workbook(excel_filename)
-        self._worksheet = self._workbook.add_worksheet()
-        self._columns = []
+    DT_INT = "int"
+    DT_FLOAT = "float"
+    DT_LAP_TIME = "laptime"
+    DT_TIME_DELTA = "timedelta"
+    DT_FLAG = "flag"
+
+    def __init__(self):
+        self.name = "<unnamed>"
+        self.columns = []
+        self._calculators = {}
         self._laps = []
+        self._row_count = 1
 
 
-    def add_column(self, *kwargs):
-        self._columns.append(DashboardColumn(*kwargs))
+    @classmethod
+    def create_default_dashboard(cls):
+        dashboard = SessionDashboard()
+        dashboard.add_column(measure_id="Lap", title="Lap", datatype=cls.DT_INT)
+        dashboard.add_column(measure_id="LapLastLapTime", title="Time", datatype=cls.DT_LAP_TIME)
+        dashboard.add_column(measure_id="LapLastLapDelta", title="Delta", datatype=cls.DT_TIME_DELTA)
+        dashboard.add_column(measure_id="FuelLevel", title="Fuel", datatype=cls.DT_FLOAT)
+        dashboard.add_column(measure_id="FuelConsumption", title="Consumption", datatype=cls.DT_FLOAT)
+        dashboard.add_column(measure_id="Pitted", title="Pitted", datatype=cls.DT_FLAG)
+        dashboard.add_calculator("LapLastLapDelta", calculate_last_lap_delta)
+        dashboard.add_calculator("FuelConsumption", calculate_fuel_consumption)
+        return dashboard
 
 
-    def save_lap(self, lap_register):
-        if not self._laps:
-            self._write_header()
+    def add_column(self, **kwargs):
+        self.columns.append(DashboardColumn(**kwargs))
+
+
+    def add_lap(self, lap_register):
         self._laps.append(lap_register)
-        self._write_lap(lap_register)
+        for i, (measure_id, title, datatype) in enumerate(self.columns):
+            if measure_id in self._calculators:
+                calculator = self._calculators[measure_id]
+                value = calculator(self._laps)
+                lap_register[measure_id] = value
+            elif measure_id not in lap_register:
+                lap_register[measure_id] = None
 
 
-    def _write_header(self):
-        for i, column in enumerate(self._columns):
-            self._worksheet.write(0, i, column.title)
+    @property
+    def laps(self):
+        return self._laps[:]
 
 
-    def _write_lap(self, lap_register):
-        # row = []
-        # for measure_id, _, typecode in self._columns:
-        #     measure_text = self._to_string(lap_register[measure_id], typecode)
-        #     row.append(measure_text)
-        # self._stream.write("\t".join([text for text in row]))
-        # self._stream.write(ENDLINE)
+    def add_calculator(self, param, calculator):
+        self._calculators[param] = calculator
 
 
-    def _to_string(self, param, typecode):
-        if typecode == "time":
-            return strftime(param)
-        else:
-            return str(param)
-
-def strftime(seconds):
-    return "{0:.0f}:{1:.3f}".format(seconds // 60, seconds % 60)
+def calculate_fuel_consumption(lap_table):
+    if len(lap_table) >= 2:
+        return lap_table[-2]["FuelLevel"] - lap_table[-1]["FuelLevel"]
 
 
-ENDLINE = "\n"
+def calculate_last_lap_delta(lap_table):
+    if len(lap_table) >= 2:
+        return lap_table[-1]["LapLastLapTime"] - lap_table[-2]["LapLastLapTime"]
