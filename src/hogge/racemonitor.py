@@ -25,15 +25,20 @@ class RaceMonitor(object):
         self._session_dashboard.name = self.get_session_name()
         current_lap = telemeter["Lap"]
         pitted = False
+        off_track = False
         while telemeter.is_connected:
             ir_lap = telemeter["Lap"]
             is_pit = telemeter["OnPitRoad"]
+            is_off_track = telemeter["CarIdxTrackSurface"]
             if is_pit:
                 pitted = True
+            if not is_off_track[0]:
+                off_track = True
             if ir_lap > current_lap:
-                self.save_last_lap(current_lap, pitted)
+                self.save_last_lap(current_lap, pitted, off_track)
                 current_lap = ir_lap
                 pitted = False
+                off_track = False
             else:
                 sleep(self.QUERY_INTERVAL)
 
@@ -44,9 +49,9 @@ class RaceMonitor(object):
             sleep(3)
 
 
-    def save_last_lap(self, lap, pitted):
+    def save_last_lap(self, lap, pitted, off_track):
         telemeter = self._telemeter
-        lap_register = {"Lap": lap, "Pitted": pitted}
+        lap_register = {"Lap": lap, "Pitted": pitted, "OffTrack": off_track}
         for measure_id, _, _ in self._session_dashboard.columns:
             if measure_id in ["Lap", "LapLastLapTime"]:
                 continue
