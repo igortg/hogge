@@ -28,6 +28,7 @@ class SessionDashboard(object):
         dashboard.add_column(measure_id="FuelLevel", title="Fuel", datatype=cls.DT_FLOAT)
         dashboard.add_column(measure_id="FuelConsumption", title="Consumption", datatype=cls.DT_FLOAT)
         dashboard.add_column(measure_id="Pitted", title="Pitted", datatype=cls.DT_FLAG)
+        dashboard.add_column(measure_id="OffTrack", title="Off Track", datatype=cls.DT_FLAG)
         dashboard.add_calculator("LapLastLapDelta", calculate_last_lap_delta)
         dashboard.add_calculator("FuelConsumption", calculate_fuel_consumption)
         return dashboard
