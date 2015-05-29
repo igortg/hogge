@@ -3,7 +3,7 @@ from time import sleep
 
 class RaceMonitor(object):
 
-    QUERY_INTERVAL = 0.1
+    QUERY_INTERVAL = 1
     LAP_TIME_QUERY_DELAY = 2  #Last lap time info doesn't update instantaneous. Set a delay to workaround this.
     LAP_TIME_QUERY_RETRIES = 3  #Last lap time info doesn't update instantaneous. Set a delay to workaround this.
 
@@ -22,11 +22,17 @@ class RaceMonitor(object):
         telemeter = self._telemeter
         if not telemeter.startup():
             raise RuntimeError("Couldn't start iRacing connection")
-        self._session_dashboard.name = self.get_session_name()
+        try:
+            self._session_dashboard.name = self.get_session_name()
+        except TypeError:
+            self._session_dashboard.name = "unnamed"
         current_lap = telemeter["Lap"]
         pitted = False
         off_track = False
         while telemeter.is_connected:
+            sleep(self.QUERY_INTERVAL)
+            if telemeter["IsReplayPlaying"]:
+                continue
             ir_lap = telemeter["Lap"]
             is_pit = telemeter["OnPitRoad"]
             is_off_track = telemeter["CarIdxTrackSurface"]
@@ -34,13 +40,11 @@ class RaceMonitor(object):
                 pitted = True
             if not is_off_track[0]:
                 off_track = True
-            if ir_lap > current_lap:
+            if ir_lap > current_lap :
                 self.save_last_lap(current_lap, pitted, off_track)
                 current_lap = ir_lap
                 pitted = False
                 off_track = False
-            else:
-                sleep(self.QUERY_INTERVAL)
 
 
 

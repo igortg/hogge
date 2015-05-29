@@ -11,4 +11,3 @@ def test_xlsdashboardwriter(tmpdir):
 
     writer = XlsDashboardWriter(str(xls_file))
     writer.write(dashboard)
-    import os; os.startfile(str(xls_file))

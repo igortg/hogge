@@ -1,4 +1,5 @@
 import os
+import random
 
 import irsdk
 
@@ -8,9 +9,8 @@ from hogge.xlsdashboardwriter import XlsDashboardWriter
 
 
 def print_title():
-    log("== Hogge - iRacing Session Lap Telemetry ==")
-    print("\t{0}".format(HOGGE_QUOTES[0]))
-    print("                   Hogge, Harry")
+    log("== Hogge - iRacing Session Lap Chronometer ==")
+    print("\t{0}".format(random.choice(HOGGE_QUOTES)))
     print()
 
 
@@ -45,6 +45,7 @@ def log(msg):
 HOGGE_QUOTES = [
     "Rubbin, son, is racin'",
     "Cole, when you shift the gear and that little needle on the tach goes into the red and reads 9000 RPMs, that's BAD.",
+    "Well, I know a damn race driver when I see one."
 ]
 
 
