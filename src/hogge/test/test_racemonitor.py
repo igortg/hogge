@@ -1,9 +1,9 @@
 from hogge.racemonitor import RaceMonitor
-from hogge.sessiondashboard import SessionDashboard
+from hogge.sessiontimesheet import SessionTimeSheet
 
 
 def test_racemonitor(irsdk):
-    dashboard = SessionDashboard.create_default_dashboard()
+    dashboard = SessionTimeSheet.create_default_timesheet()
     hogge = RaceMonitor(irsdk, dashboard)
     hogge.start()
 

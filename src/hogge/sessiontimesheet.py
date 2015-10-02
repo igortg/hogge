@@ -3,7 +3,7 @@ from collections import namedtuple
 
 DashboardColumn = namedtuple("DashboardColumn", ["measure_id", "title", "datatype"])
 
-class SessionDashboard(object):
+class SessionTimeSheet(object):
 
     DT_INT = "int"
     DT_FLOAT = "float"
@@ -20,8 +20,8 @@ class SessionDashboard(object):
 
 
     @classmethod
-    def create_default_dashboard(cls):
-        dashboard = SessionDashboard()
+    def create_default_timesheet(cls):
+        dashboard = SessionTimeSheet()
         dashboard.add_column(measure_id="Lap", title="Lap", datatype=cls.DT_INT)
         dashboard.add_column(measure_id="LapLastLapTime", title="Time", datatype=cls.DT_LAP_TIME)
         dashboard.add_column(measure_id="LapLastLapDelta", title="Delta", datatype=cls.DT_TIME_DELTA)
@@ -61,8 +61,12 @@ class SessionDashboard(object):
 def calculate_fuel_consumption(lap_table):
     if len(lap_table) >= 2:
         return lap_table[-2]["FuelLevel"] - lap_table[-1]["FuelLevel"]
+    else:
+        return 0
 
 
 def calculate_last_lap_delta(lap_table):
     if len(lap_table) >= 2:
         return lap_table[-1]["LapLastLapTime"] - lap_table[-2]["LapLastLapTime"]
+    else:
+        return 0

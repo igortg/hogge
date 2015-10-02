@@ -4,7 +4,7 @@ import random
 import irsdk
 
 from hogge.racemonitor import RaceMonitor
-from hogge.sessiondashboard import SessionDashboard
+from hogge.sessiontimesheet import SessionTimeSheet
 from hogge.xlsdashboardwriter import XlsDashboardWriter
 
 
@@ -19,7 +19,7 @@ HOGGE_DATA_DIR = r"~\Documents\Hogge Sessions"
 def main():
     print_title()
     ir = irsdk.IRSDK()
-    dashboard = SessionDashboard.create_default_dashboard()
+    dashboard = SessionTimeSheet.create_default_timesheet()
     monitor = RaceMonitor(ir, dashboard)
     log("Waiting for iRacing...\n")
     monitor.wait_for_telemeter()
