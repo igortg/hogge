@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+</head>
+<body>
+
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-12">
+      <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>Time</th>
+            <th>Delta</th>
+            <th>Consumption</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for lap in timesheet.laps %}
+          <tr>
+            <td>{{ lap["Lap"] }}</td>
+            <td>{{ lap["LapLastLapTime"]|laptime }}</td>
+            <td>{{ "%+.3f" |format(lap["LapLastLapDelta"]) }}</td>
+            <td>{{ "%.2f"  |format(lap["FuelConsumption"]) }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
