@@ -1,3 +1,4 @@
+from configparser import ConfigParser
 import os
 import random
 
@@ -7,6 +8,8 @@ from hogge.racemonitor import RaceMonitor
 from hogge.sessiondashboard import SessionDashboard
 from hogge.xlsdashboardwriter import XlsDashboardWriter
 
+HOGGE_CONFIG_FILENAME = os.path.expanduser(r"~\Documents\Hogge\hogge.ini")
+
 
 def print_title():
     log("== Hogge - iRacing Session Lap Chronometer ==")
@@ -14,11 +17,15 @@ def print_title():
     print()
 
 
-HOGGE_DATA_DIR = r"~\Documents\Hogge Sessions"
-
 def main():
     print_title()
     ir = irsdk.IRSDK()
+
+    if not os.path.isfile(HOGGE_CONFIG_FILENAME):
+        raise RuntimeError("No config file found")
+    parser = ConfigParser()
+    config = parser.read(HOGGE_CONFIG_FILENAME)
+
     dashboard = SessionDashboard.create_default_dashboard()
     monitor = RaceMonitor(ir, dashboard)
     log("Waiting for iRacing...\n")
@@ -28,11 +35,13 @@ def main():
     try:
         monitor.start()
     finally:
-        xls_basename = "{0}.xlsx".format(dashboard.name)
-        xls_filepath = os.path.join(os.path.expanduser(HOGGE_DATA_DIR), xls_basename)
+        output_dir = config.get("General", "output_dir")
+        driver_name = config.get("General", "driver_name")
+        xls_basename = "{0} - {1}.xlsx".format(dashboard.name, driver_name)
+        xls_filepath = os.path.join(output_dir, xls_basename)
         if not os.path.isdir(os.path.dirname(xls_filepath)):
             os.mkdir(os.path.dirname(xls_filepath))
-        log("Saving session at {0}\{1}\n".format(HOGGE_DATA_DIR, xls_basename))
+        log("Saving session at {0}\{1}\n".format(output_dir, xls_basename))
         writer = XlsDashboardWriter(xls_filepath)
         writer.write(dashboard)
         input("Press any key to continue...")
@@ -44,7 +53,8 @@ def log(msg):
 
 HOGGE_QUOTES = [
     "Rubbin, son, is racin'",
-    "Cole, when you shift the gear and that little needle on the tach goes into the red and reads 9000 RPMs, that's BAD.",
+    "Cole, when you shift the gear and that little needle on the tach goes into the red and reads 9000 RPMs, " \
+    "that's BAD.",
     "Well, I know a damn race driver when I see one."
 ]
 
