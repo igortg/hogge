@@ -58,6 +58,20 @@ class SessionTimeSheet(object):
         self._calculators[param] = calculator
 
 
+    def create_summary(self):
+        summary = {
+            "TotalLapTime": 0,
+            "TotalFuelConsumption": 0,
+        }
+        for lap in self.laps:
+            summary["TotalLapTime"] += lap["LapLastLapTime"]
+            summary["TotalFuelConsumption"] += lap["FuelConsumption"]
+        summary["AvgFuelConsumption"] = summary["TotalFuelConsumption"] / self.laps[-1]["Lap"]
+        summary["AvgFuelConsumptionPerMin"] = summary["TotalFuelConsumption"] / summary["TotalLapTime"] / 60.0
+        return summary
+
+
+
 def calculate_fuel_consumption(lap_table):
     if len(lap_table) >= 2:
         return lap_table[-2]["FuelLevel"] - lap_table[-1]["FuelLevel"]

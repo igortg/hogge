@@ -11,6 +11,7 @@ class HtmlTimeSheetWriter(object):
         self._output_dir = output_dir
         self.env = Environment(loader=PackageLoader("hogge", "templates"))
         self.env.filters["laptime"] = self.float2laptime
+        self.env.filters["fuel"] = lambda x: "{:.2f}".format(x)
 
 
     def dump(self, timesheet):
@@ -20,7 +21,7 @@ class HtmlTimeSheetWriter(object):
         """
         out_filename = os.path.join(self._output_dir, "{}.html".format(self.basename))
         template = self.env.get_template("htmltimesheet.html")
-        ostream = template.stream(timesheet=timesheet)
+        ostream = template.stream(timesheet=timesheet, summary=timesheet.create_summary())
         ostream.dump(out_filename)
 
 

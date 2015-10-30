@@ -10,33 +10,66 @@
 
 </head>
 <body>
-
-
 <div class="container-fluid">
+  <!-- Laps Panel row -->
   <div class="row">
     <div class="col-md-12">
-      <table class="table table-striped">
-        <thead>
-        <tr>
+
+      <div id="laps-panel" class="panel panel-default">
+        <div class="panel-heading">Laps</div>
+
+        <!-- Table -->
+        <table class="table">
+          <thead>
+          <tr>
             <th>#</th>
             <th>Time</th>
             <th>Delta</th>
             <th>Consumption</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for lap in timesheet.laps %}
+          </tr>
+          </thead>
+          <tbody>
+          {% for lap in timesheet.laps %}
           <tr>
             <td>{{ lap["Lap"] }}</td>
             <td>{{ lap["LapLastLapTime"]|laptime }}</td>
             <td>{{ "%+.3f" |format(lap["LapLastLapDelta"]) }}</td>
-            <td>{{ "%.2f"  |format(lap["FuelConsumption"]) }}</td>
+            <td>{{ lap["FuelConsumption"]|fuel }}</td>
           </tr>
-        {% endfor %}
-        </tbody>
-      </table>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
     </div>
   </div>
+
+  <!-- Summary Panel row -->
+  <div class="row">
+    <div class="col-md-6">
+
+      <div id="summary-panel" class="panel panel-default">
+        <div class="panel-heading">Summary</div>
+          <table class="table">
+            <tbody>
+              <tr>
+                <td>Total Time:</td><td>{{ summary["TotalLapTime"]|laptime }}</td>
+              </tr>
+              <tr>
+                <td>Avg. Consumption:</td><td>{{ summary["AvgFuelConsumption"]|fuel }}</td>
+              </tr>
+              <tr>
+                <td>Avg. Consumption / Min.:</td><td>{{ summary["AvgFuelConsumptionPerMin"]|fuel }}</td>
+              </tr>
+            </tbody>
+          </table>
+
+      </div>
+
+    </div>
+  </div>
+
+
 </div>
 
 </body>
