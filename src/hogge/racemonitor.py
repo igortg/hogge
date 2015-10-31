@@ -3,7 +3,7 @@ from time import sleep
 
 class RaceMonitor(object):
 
-    LAP_TIME_QUERY_DELAY = 2  #Last lap time info doesn't update instantaneous. Set a delay to workaround this.
+    LAP_TIME_QUERY_DELAY = 3  #Last lap time info doesn't update instantaneous. Set a delay to workaround this.
     LAP_TIME_QUERY_RETRIES = 3  #Last lap time info doesn't update instantaneous. Set a delay to workaround this.
 
     def __init__(self, telemeter, timesheet, on_lap_callback=None):
@@ -19,6 +19,7 @@ class RaceMonitor(object):
         self._timesheet = timesheet
         self._on_lap_callback = on_lap_callback
         self.query_interval = 1
+        self._last_read_lap_time = None
 
 
     def start(self):
@@ -29,7 +30,7 @@ class RaceMonitor(object):
             self._timesheet.name = self.get_session_name()
         except TypeError:
             self._timesheet.name = "unnamed"
-        lap_register = {"Lap": telemeter["Lap"]}
+        lap_register = self._create_lap_register(telemeter["Lap"])
         while telemeter.is_connected:
             sleep(self.query_interval)
             if telemeter["IsReplayPlaying"]:
@@ -40,7 +41,7 @@ class RaceMonitor(object):
                 self.save_previous_lap(lap_register)
                 if self._on_lap_callback is not None:
                     self._on_lap_callback(lap_register)
-                lap_register = {"Lap": telemeter["Lap"]}
+                lap_register = self._create_lap_register(telemeter["Lap"])
 
 
     def wait_for_telemeter(self):
@@ -56,16 +57,26 @@ class RaceMonitor(object):
             value = telemeter[measure_id]
             if value is not None:
                 lap_register[measure_id] = value
-        # Save Lap Time
-        last_lap_time = None
+        # Save Lap Time, "LapLastLapTime" has a delay of few seconds to be update, so we wait and check if it changed
+        sleep(self.LAP_TIME_QUERY_DELAY)
         for i in range(self.LAP_TIME_QUERY_RETRIES):
-            sleep(self.LAP_TIME_QUERY_DELAY)
             last_lap_time = telemeter["LapLastLapTime"]
-            if last_lap_time > 0:
+            if last_lap_time != self._last_read_lap_time:
+                self._last_read_lap_time = last_lap_time
+                lap_register["LapLastLapTime"] = last_lap_time if last_lap_time > 0 else 0
+                self._timesheet.add_lap(lap_register)
                 break
-        if last_lap_time is not None:
-            lap_register["LapLastLapTime"] = last_lap_time
-        self._timesheet.add_lap(lap_register)
+            else:
+                sleep(self.query_interval)
+
+
+    @staticmethod
+    def _create_lap_register(lap):
+        return {
+            "Lap": lap,
+            "HasPitted": False,
+            "HasOffTrack": False,
+        }
 
 
     def _query_lap_events(self, lap_register):
@@ -73,7 +84,7 @@ class RaceMonitor(object):
         if telemeter["OnPitRoad"]:
             lap_register["HasPitted"] = True
         if telemeter["CarIdxTrackSurface"]:
-            lap_register["IsCleanLap"] = False
+            lap_register["HasOffTrack"] = True
 
 
     def get_session_name(self):

@@ -6,6 +6,8 @@ def test_dashboard():
 
     dashboard.add_lap(dict(Lap=1, LapLastLapTime=68.392, FuelLevel=12.0))
     dashboard.add_lap(dict(Lap=2, LapLastLapTime=69.584, FuelLevel=11.2))
+    dashboard.add_lap(dict(Lap=3, LapLastLapTime=-1, FuelLevel=-1))
+
 
     lap2 = dashboard.laps[1]
     assert lap2["Lap"] == 2

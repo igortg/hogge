@@ -11,6 +11,31 @@
 </head>
 <body>
 <div class="container-fluid">
+  <!-- Summary Panel row -->
+  <div class="row">
+    <div class="col-md-6">
+
+      <div id="summary-panel" class="panel panel-default">
+        <div class="panel-heading">Summary</div>
+          <table class="table">
+            <tbody>
+              <tr>
+                <td>Total Time:</td><td>{{ summary["TotalLapTime"]|laptime }}</td>
+              </tr>
+              <tr>
+                <td>Avg. Consumption / Lap:</td><td>{{ summary["AvgFuelConsumption"]|fuel }}</td>
+              </tr>
+              <tr>
+                <td>Avg. Consumption / Min.:</td><td>{{ summary["AvgFuelConsumptionPerMin"]|fuel }}</td>
+              </tr>
+            </tbody>
+          </table>
+
+      </div>
+
+    </div>
+  </div>
+
   <!-- Laps Panel row -->
   <div class="row">
     <div class="col-md-12">
@@ -43,32 +68,6 @@
 
     </div>
   </div>
-
-  <!-- Summary Panel row -->
-  <div class="row">
-    <div class="col-md-6">
-
-      <div id="summary-panel" class="panel panel-default">
-        <div class="panel-heading">Summary</div>
-          <table class="table">
-            <tbody>
-              <tr>
-                <td>Total Time:</td><td>{{ summary["TotalLapTime"]|laptime }}</td>
-              </tr>
-              <tr>
-                <td>Avg. Consumption:</td><td>{{ summary["AvgFuelConsumption"]|fuel }}</td>
-              </tr>
-              <tr>
-                <td>Avg. Consumption / Min.:</td><td>{{ summary["AvgFuelConsumptionPerMin"]|fuel }}</td>
-              </tr>
-            </tbody>
-          </table>
-
-      </div>
-
-    </div>
-  </div>
-
 
 </div>
 

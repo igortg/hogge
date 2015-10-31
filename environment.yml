@@ -1,0 +1,16 @@
+name: hogge
+dependencies:
+- colorama=0.3.3=py33_0
+- jinja2=2.8=py33_0
+- markupsafe=0.23=py33_0
+- pip=7.1.2=py33_0
+- py=1.4.30=py33_0
+- pytest=2.7.2=py33_0
+- python=3.3.5=1
+- pyyaml=3.11=py33_2
+- setuptools=18.4=py33_0
+- wheel=0.26.0=py33_1
+- xlsxwriter=0.7.3=py33_0
+- pip:
+  - pyirsdk==1.1.4
+

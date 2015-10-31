@@ -7,8 +7,7 @@ from hogge.sessiontimesheet import SessionTimeSheet
 def test_racemonitor(irsdk):
     test_dirname = os.path.dirname(__file__)
     dashboard = SessionTimeSheet.create_default_timesheet()
-    html_writer = HtmlTimeSheetWriter("test-sheet", test_dirname)
-    hogge = RaceMonitor(irsdk, dashboard, html_writer)
+    hogge = RaceMonitor(irsdk, dashboard)
     hogge.start()
 
     lap1 = dashboard.laps[1]

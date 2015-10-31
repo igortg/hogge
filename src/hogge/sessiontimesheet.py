@@ -27,8 +27,8 @@ class SessionTimeSheet(object):
         dashboard.add_column(measure_id="LapLastLapDelta", title="Delta", datatype=cls.DT_TIME_DELTA)
         dashboard.add_column(measure_id="FuelLevel", title="Fuel", datatype=cls.DT_FLOAT)
         dashboard.add_column(measure_id="FuelConsumption", title="Consumption", datatype=cls.DT_FLOAT)
-        dashboard.add_column(measure_id="Pitted", title="Pitted", datatype=cls.DT_FLAG)
-        dashboard.add_column(measure_id="OffTrack", title="Off Track", datatype=cls.DT_FLAG)
+        dashboard.add_column(measure_id="HasPitted", title="Pitted", datatype=cls.DT_FLAG)
+        dashboard.add_column(measure_id="HasOffTrack", title="Off Track", datatype=cls.DT_FLAG)
         dashboard.add_calculator("LapLastLapDelta", calculate_last_lap_delta)
         dashboard.add_calculator("FuelConsumption", calculate_fuel_consumption)
         return dashboard
@@ -63,25 +63,28 @@ class SessionTimeSheet(object):
             "TotalLapTime": 0,
             "TotalFuelConsumption": 0,
         }
-        lap_count =  len(self.laps)
+        valid_lap_count = 0
         for lap in self.laps:
             summary["TotalLapTime"] += lap["LapLastLapTime"]
             summary["TotalFuelConsumption"] += lap["FuelConsumption"]
-        summary["AvgFuelConsumption"] = summary["TotalFuelConsumption"] / lap_count if lap_count else 0
-        summary["AvgFuelConsumptionPerMin"] = summary["TotalFuelConsumption"] / (summary["TotalLapTime"] / 60.0) if summary["TotalLapTime"] else 0
+            if lap["LapLastLapTime"] > 0:
+                valid_lap_count += 1
+        summary["AvgFuelConsumption"] = summary["TotalFuelConsumption"] / valid_lap_count if valid_lap_count else 0
+        summary["AvgFuelConsumptionPerMin"] = summary["TotalFuelConsumption"] / (summary["TotalLapTime"] / 60.0) \
+            if valid_lap_count else 0
         return summary
 
 
 
 def calculate_fuel_consumption(lap_table):
-    if len(lap_table) >= 2:
+    if len(lap_table) > 1 and lap_table[-1]["LapLastLapTime"] > 0:
         return lap_table[-2]["FuelLevel"] - lap_table[-1]["FuelLevel"]
     else:
         return 0
 
 
 def calculate_last_lap_delta(lap_table):
-    if len(lap_table) >= 2:
+    if len(lap_table) > 1 and len(lap_table) and lap_table[-1]["LapLastLapTime"] > 0:
         return lap_table[-1]["LapLastLapTime"] - lap_table[-2]["LapLastLapTime"]
     else:
         return 0
