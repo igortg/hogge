@@ -23,8 +23,10 @@ def main():
 
     if not os.path.isfile(HOGGE_CONFIG_FILENAME):
         raise RuntimeError("No config file found")
-    parser = ConfigParser()
-    config = parser.read(HOGGE_CONFIG_FILENAME)
+    config = ConfigParser()
+    config.read(HOGGE_CONFIG_FILENAME)
+    output_dir = config.get("General", "output_dir")
+    driver_name = config.get("General", "driver_name")
 
     dashboard = SessionDashboard.create_default_dashboard()
     monitor = RaceMonitor(ir, dashboard)
@@ -35,8 +37,6 @@ def main():
     try:
         monitor.start()
     finally:
-        output_dir = config.get("General", "output_dir")
-        driver_name = config.get("General", "driver_name")
         xls_basename = "{0} - {1}.xlsx".format(dashboard.name, driver_name)
         xls_filepath = os.path.join(output_dir, xls_basename)
         if not os.path.isdir(os.path.dirname(xls_filepath)):
