@@ -3,6 +3,7 @@ import os
 import random
 
 import irsdk
+from hogge.htmltimesheetwriter import HtmlTimeSheetWriter
 
 from hogge.racemonitor import RaceMonitor
 from hogge.sessiontimesheet import SessionTimeSheet
@@ -19,8 +20,6 @@ def print_title():
 
 def main():
     print_title()
-    ir = irsdk.IRSDK()
-    dashboard = SessionTimeSheet.create_default_timesheet()
 
     if not os.path.isfile(HOGGE_CONFIG_FILENAME):
         raise RuntimeError("No config file found")
@@ -28,23 +27,23 @@ def main():
     config.read(HOGGE_CONFIG_FILENAME)
     output_dir = config.get("General", "output_dir")
     driver_name = config.get("General", "driver_name")
+    ir = irsdk.IRSDK()
+    timesheet = SessionTimeSheet.create_default_timesheet()
+    writer = HtmlTimeSheetWriter()
 
-    dashboard = SessionDashboard.create_default_dashboard()
-    monitor = RaceMonitor(ir, dashboard)
-    log("Waiting for iRacing...\n")
+    def on_lap(lap_register):
+        basename = os.path.join(output_dir, "{0} - {1}".format(timesheet.name, driver_name))
+        log("Saving session at {}".format(basename))
+        writer.dump(timesheet, basename)
+
+    monitor = RaceMonitor(ir, timesheet, on_lap)
+    log("Waiting for iRacing...")
     monitor.wait_for_telemeter()
-    log("Connected. Start Monitoring\n")
+    log("Connected. Start Monitoring")
     # noinspection PyBroadException
     try:
         monitor.start()
     finally:
-        xls_basename = "{0} - {1}.xlsx".format(dashboard.name, driver_name)
-        xls_filepath = os.path.join(output_dir, xls_basename)
-        if not os.path.isdir(os.path.dirname(xls_filepath)):
-            os.mkdir(os.path.dirname(xls_filepath))
-        log("Saving session at {0}\{1}\n".format(output_dir, xls_basename))
-        writer = XlsDashboardWriter(xls_filepath)
-        writer.write(dashboard)
         input("Press any key to continue...")
 
 

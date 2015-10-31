@@ -3,19 +3,22 @@ from time import sleep
 
 class RaceMonitor(object):
 
-    QUERY_INTERVAL = 1
     LAP_TIME_QUERY_DELAY = 2  #Last lap time info doesn't update instantaneous. Set a delay to workaround this.
     LAP_TIME_QUERY_RETRIES = 3  #Last lap time info doesn't update instantaneous. Set a delay to workaround this.
 
-    def __init__(self, telemeter, dashboard):
+    def __init__(self, telemeter, timesheet, on_lap_callback=None):
         """
 
-        :param IRSDK telemeter: measure car and session data
+        :param IRSDK telemeter: measure car and session data.
 
-        :param XlsSessionDashboard dashboard: store session data and write it to disk
+        :param SessionTimeSheet timesheet: store session data and write it to disk.
+
+        :param callable on_lap_callback: function which will be called on a lap is completed.
         """
         self._telemeter = telemeter
-        self._session_dashboard = dashboard
+        self._timesheet = timesheet
+        self._on_lap_callback = on_lap_callback
+        self.query_interval = 1
 
 
     def start(self):
@@ -23,29 +26,21 @@ class RaceMonitor(object):
         if not telemeter.startup():
             raise RuntimeError("Couldn't start iRacing connection")
         try:
-            self._session_dashboard.name = self.get_session_name()
+            self._timesheet.name = self.get_session_name()
         except TypeError:
-            self._session_dashboard.name = "unnamed"
-        current_lap = telemeter["Lap"]
-        pitted = False
-        off_track = False
+            self._timesheet.name = "unnamed"
+        lap_register = {"Lap": telemeter["Lap"]}
         while telemeter.is_connected:
-            sleep(self.QUERY_INTERVAL)
+            sleep(self.query_interval)
             if telemeter["IsReplayPlaying"]:
                 continue
-            ir_lap = telemeter["Lap"]
-            is_pit = telemeter["OnPitRoad"]
-            is_off_track = telemeter["CarIdxTrackSurface"]
-            if is_pit:
-                pitted = True
-            if not is_off_track[0]:
-                off_track = True
-            if ir_lap > current_lap :
-                self.save_last_lap(current_lap, pitted, off_track)
-                current_lap = ir_lap
-                pitted = False
-                off_track = False
-
+            self._query_lap_events(lap_register)
+            # Check if start/finish line was crossed
+            if telemeter["Lap"] > lap_register["Lap"] :
+                self.save_previous_lap(lap_register)
+                if self._on_lap_callback is not None:
+                    self._on_lap_callback(lap_register)
+                lap_register = {"Lap": telemeter["Lap"]}
 
 
     def wait_for_telemeter(self):
@@ -53,10 +48,9 @@ class RaceMonitor(object):
             sleep(3)
 
 
-    def save_last_lap(self, lap, pitted, off_track):
+    def save_previous_lap(self, lap_register):
         telemeter = self._telemeter
-        lap_register = {"Lap": lap, "Pitted": pitted, "OffTrack": off_track}
-        for measure_id, _, _ in self._session_dashboard.columns:
+        for measure_id, _, _ in self._timesheet.columns:
             if measure_id in ["Lap", "LapLastLapTime"]:
                 continue
             value = telemeter[measure_id]
@@ -71,7 +65,15 @@ class RaceMonitor(object):
                 break
         if last_lap_time is not None:
             lap_register["LapLastLapTime"] = last_lap_time
-        self._session_dashboard.add_lap(lap_register)
+        self._timesheet.add_lap(lap_register)
+
+
+    def _query_lap_events(self, lap_register):
+        telemeter = self._telemeter
+        if telemeter["OnPitRoad"]:
+            lap_register["HasPitted"] = True
+        if telemeter["CarIdxTrackSurface"]:
+            lap_register["IsCleanLap"] = False
 
 
     def get_session_name(self):
