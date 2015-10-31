@@ -3,7 +3,7 @@ import py2exe
 
 setup(
     name='hogge',
-    version='0.3',
+    version='0.4',
     package_dir={'': 'src'},
     url='https://github.com/itghisi/hogge',
     license='LGPL v3.0',
