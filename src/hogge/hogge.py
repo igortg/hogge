@@ -22,33 +22,31 @@ class Hogge(object):
             os.mkdir(self.HOGGE_DATA_DIRNAME)
         config = self._acquire_config_data()
         self.output_dir = config.get("General", "output_dir")
-        self._timesheet = SessionTimeSheet.create_default_timesheet()
+        ir = irsdk.IRSDK()
+        self._monitor = RaceMonitor(ir, self.on_lap_completed)
         self._writer = HtmlTimeSheetWriter()
-        self._monitor = None
+        self._active_timesheet = None
 
 
     def main(self):
-        ir = irsdk.IRSDK()
-        timesheet = self._timesheet
-        self._monitor = RaceMonitor(ir, timesheet, self.on_lap_completed)
-        log("Waiting for iRacing...")
-        self._monitor.wait_for_telemeter()
-        log("Connected. Start Monitoring")
-        # noinspection PyBroadException
-        try:
-            self._monitor.start()
-        finally:
-            input("Press any key to continue...")
-            self._monitor = None
+        monitor = self._monitor
+        while True:
+            self._active_timesheet = SessionTimeSheet.create_default_timesheet()
+            log("Waiting for iRacing...  (use Ctrl+C to interrupt)")
+            monitor.wait_for_telemeter()
+            log("Connected. Start Monitoring")
+            monitor.start()
+        input("Press any key to continue...")
 
 
     def on_lap_completed(self, lap_register):
-        if not self._timesheet.name:
-            self._timesheet.name = self._monitor.get_session_name()
-        sheet_filename = os.path.join(self.output_dir, "{0}.html".format(self._timesheet.name))
+        timesheet = self._active_timesheet
+        if not timesheet.name:
+            timesheet.name = self._monitor.get_session_name()
+        sheet_filename = os.path.join(self.output_dir, "{0}.html".format(timesheet.name))
         if not os.path.isfile(sheet_filename):
             log("Saving session at {}".format(sheet_filename))
-        self._writer.dump(self._timesheet, sheet_filename)
+        self._writer.dump(timesheet, sheet_filename)
 
 
     def _acquire_config_data(self):
