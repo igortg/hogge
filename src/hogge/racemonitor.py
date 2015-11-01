@@ -53,6 +53,8 @@ class RaceMonitor(object):
             value = telemeter[measure_id]
             if value is not None:
                 lap_register[measure_id] = value
+        if telemeter["OnPitRoad"]:
+            lap_register["HasPitted"] = True
         # Save Lap Time, "LapLastLapTime" has a delay of few seconds to be update, so we wait and check if it changed
         sleep(self.LAP_TIME_QUERY_DELAY)
         for i in range(self.LAP_TIME_QUERY_RETRIES):
@@ -78,8 +80,6 @@ class RaceMonitor(object):
     def _query_lap_events(self, lap_register):
         telemeter = self._telemeter
         driver_index = telemeter["DriverInfo"]["DriverCarIdx"]
-        if telemeter["OnPitRoad"]:
-            lap_register["HasPitted"] = True
         if telemeter["CarIdxTrackSurface"][driver_index] == 0:
             lap_register["HasOffTrack"] = True
 
