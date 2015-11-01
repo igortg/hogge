@@ -77,18 +77,21 @@ class RaceMonitor(object):
 
     def _query_lap_events(self, lap_register):
         telemeter = self._telemeter
+        driver_index = telemeter["DriverInfo"]["DriverCarIdx"]
         if telemeter["OnPitRoad"]:
             lap_register["HasPitted"] = True
-        if telemeter["CarIdxTrackSurface"]:
+        if telemeter["CarIdxTrackSurface"][driver_index] == 0:
             lap_register["HasOffTrack"] = True
 
 
     def get_session_name(self):
         from datetime import datetime
         telemeter = self._telemeter
-        car = telemeter["DriverInfo"]["Drivers"][0]["CarScreenNameShort"]
-        driver = telemeter["DriverInfo"]["Drivers"][0]["UserName"]
+        driver_index = telemeter["DriverInfo"]["DriverCarIdx"]
+        driver_data = telemeter["DriverInfo"]["Drivers"][driver_index]
+        car = driver_data["CarScreenNameShort"]
+        driver_name = driver_data["UserName"]
         session_type = telemeter["SessionInfo"]["Sessions"][0]["SessionType"]
         track = telemeter["WeekendInfo"]["TrackName"]
         time = datetime.now().strftime("%y%m%d-%H%M")
-        return "{0} @ {1} - {2} ({3})".format(car, track, time, driver)
+        return "{0} @ {1} - {2} ({3})".format(car, track, time, driver_name)
