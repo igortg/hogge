@@ -41,9 +41,10 @@ class Hogge(object):
 
 
     def on_lap_completed(self, lap_register):
-        basename = os.path.join(self.output_dir, "{0} - {1}".format(self._timesheet.name))
-        log("Saving session at {}".format(basename))
-        self._writer.dump(self._timesheet, basename)
+        sheet_filename = os.path.join(self.output_dir, "{0}.html".format(self._timesheet.name))
+        if not os.path.isfile(sheet_filename):
+            log("Saving session at {}".format(sheet_filename))
+        self._writer.dump(self._timesheet, sheet_filename)
 
 
     def _acquire_config_data(self):

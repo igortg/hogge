@@ -11,14 +11,17 @@ class HtmlTimeSheetWriter(object):
         self.env.filters["fuel"] = lambda x: "{:.2f}".format(x)
 
 
-    def dump(self, timesheet, output_basename):
+    def dump(self, timesheet, output_filename):
         """
+        Write the timeheet into a file.
 
         :param SessionTimeSheet timesheet: the time sheet to dump
+
+        :param str output_filename: timesheet file to be created
         """
         template = self.env.get_template("htmltimesheet.html")
         ostream = template.stream(timesheet=timesheet, summary=timesheet.create_summary())
-        ostream.dump("{}.html".format(output_basename))
+        ostream.dump(output_filename)
 
 
     @staticmethod
