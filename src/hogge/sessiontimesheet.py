@@ -13,7 +13,7 @@ class SessionTimeSheet(object):
     DT_FLAG = "flag"
 
     def __init__(self):
-        self.name = "<unnamed>"
+        self.name = None
         self.columns = []
         self._calculators = {}
         self._laps = []

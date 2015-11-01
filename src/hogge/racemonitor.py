@@ -26,10 +26,6 @@ class RaceMonitor(object):
         telemeter = self._telemeter
         if not telemeter.startup():
             raise RuntimeError("Couldn't start iRacing connection")
-        try:
-            self._timesheet.name = self.get_session_name()
-        except TypeError:
-            self._timesheet.name = "unnamed"
         lap_register = self._create_lap_register(telemeter["Lap"])
         while telemeter.is_connected:
             sleep(self.query_interval)

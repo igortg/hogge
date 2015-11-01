@@ -24,23 +24,27 @@ class Hogge(object):
         self.output_dir = config.get("General", "output_dir")
         self._timesheet = SessionTimeSheet.create_default_timesheet()
         self._writer = HtmlTimeSheetWriter()
+        self._monitor = None
 
 
     def main(self):
         ir = irsdk.IRSDK()
         timesheet = self._timesheet
-        monitor = RaceMonitor(ir, timesheet, self.on_lap_completed)
+        self._monitor = RaceMonitor(ir, timesheet, self.on_lap_completed)
         log("Waiting for iRacing...")
-        monitor.wait_for_telemeter()
+        self._monitor.wait_for_telemeter()
         log("Connected. Start Monitoring")
         # noinspection PyBroadException
         try:
-            monitor.start()
+            self._monitor.start()
         finally:
             input("Press any key to continue...")
+            self._monitor = None
 
 
     def on_lap_completed(self, lap_register):
+        if not self._timesheet.name:
+            self._timesheet.name = self._monitor.get_session_name()
         sheet_filename = os.path.join(self.output_dir, "{0}.html".format(self._timesheet.name))
         if not os.path.isfile(sheet_filename):
             log("Saving session at {}".format(sheet_filename))
