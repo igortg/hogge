@@ -33,7 +33,7 @@ class RaceMonitor(object):
         lap_register = self._create_lap_register(telemeter["Lap"])
         while telemeter.is_connected:
             sleep(self.query_interval)
-            if telemeter["IsReplayPlaying"]:
+            if not telemeter["IsOnTrack"]:
                 continue
             self._query_lap_events(lap_register)
             # Check if start/finish line was crossed

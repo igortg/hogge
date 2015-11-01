@@ -1,3 +1,4 @@
+from array import array
 from collections import namedtuple
 
 
@@ -62,29 +63,33 @@ class SessionTimeSheet(object):
         summary = {
             "TotalLapTime": 0,
             "TotalFuelConsumption": 0,
+            "AvgFuelConsumption": 0,
+            "AvgFuelConsumptionPerMin": 0,
         }
-        valid_lap_count = 0
+        fuel_laps = 0
+        fuel_laps_total_time = 0
         for lap in self.laps:
             summary["TotalLapTime"] += lap["LapLastLapTime"]
-            summary["TotalFuelConsumption"] += lap["FuelConsumption"]
-            if lap["LapLastLapTime"] > 0:
-                valid_lap_count += 1
-        summary["AvgFuelConsumption"] = summary["TotalFuelConsumption"] / valid_lap_count if valid_lap_count else 0
-        summary["AvgFuelConsumptionPerMin"] = summary["TotalFuelConsumption"] / (summary["TotalLapTime"] / 60.0) \
-            if valid_lap_count else 0
+            if lap["FuelConsumption"] > 0:
+                summary["TotalFuelConsumption"] += lap["FuelConsumption"]
+                fuel_laps += 1
+                fuel_laps_total_time += lap["LapLastLapTime"]
+        summary["AvgFuelConsumption"] = summary["TotalFuelConsumption"] / fuel_laps
+        summary["AvgFuelConsumptionPerMin"] = summary["TotalFuelConsumption"] / (fuel_laps_total_time / 60.0)
         return summary
 
 
 
 def calculate_fuel_consumption(lap_table):
-    if len(lap_table) > 1 and lap_table[-1]["LapLastLapTime"] > 0:
-        return lap_table[-2]["FuelLevel"] - lap_table[-1]["FuelLevel"]
+    if len(lap_table) > 1  and lap_table[-1]["LapLastLapTime"] > 0:
+        consumption = lap_table[-2]["FuelLevel"] - lap_table[-1]["FuelLevel"]
+        return consumption if consumption > 0 else 0
     else:
         return 0
 
 
 def calculate_last_lap_delta(lap_table):
-    if len(lap_table) > 1 and len(lap_table) and lap_table[-1]["LapLastLapTime"] > 0:
+    if len(lap_table) > 1 and lap_table[-1]["LapLastLapTime"] > 0:
         return lap_table[-1]["LapLastLapTime"] - lap_table[-2]["LapLastLapTime"]
     else:
         return 0
