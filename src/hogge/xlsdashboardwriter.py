@@ -1,5 +1,5 @@
 import xlsxwriter
-from hogge.sessiondashboard import SessionDashboard
+from hogge.sessiontimesheet import SessionTimeSheet
 
 
 class XlsDashboardWriter(object):
@@ -9,10 +9,10 @@ class XlsDashboardWriter(object):
         self._workbook = xlsxwriter.Workbook(xls_filename)
         self._worksheet = self._workbook.add_worksheet()
         self._type_formats = {
-            SessionDashboard.DT_INT: self._workbook.add_format({"num_format": "0"}),
-            SessionDashboard.DT_FLOAT: self._workbook.add_format({"num_format": "0.00"}),
-            SessionDashboard.DT_LAP_TIME: self._workbook.add_format({"num_format": "mm:ss.000"}),
-            SessionDashboard.DT_TIME_DELTA: self._workbook.add_format({"num_format": "0.000"}),
+            SessionTimeSheet.DT_INT: self._workbook.add_format({"num_format": "0"}),
+            SessionTimeSheet.DT_FLOAT: self._workbook.add_format({"num_format": "0.00"}),
+            SessionTimeSheet.DT_LAP_TIME: self._workbook.add_format({"num_format": "mm:ss.000"}),
+            SessionTimeSheet.DT_TIME_DELTA: self._workbook.add_format({"num_format": "0.000"}),
         }
         self._header_format = self._workbook.add_format({
             "bg_color": "#C5D9F1",
@@ -52,9 +52,9 @@ class XlsDashboardWriter(object):
 
     @staticmethod
     def _convert_value(value, datatype):
-        if datatype == SessionDashboard.DT_LAP_TIME:
+        if datatype == SessionTimeSheet.DT_LAP_TIME:
             return value / 86400
-        elif datatype == SessionDashboard.DT_FLAG:
+        elif datatype == SessionTimeSheet.DT_FLAG:
             return "X" if value else ""
         else:
             return value
