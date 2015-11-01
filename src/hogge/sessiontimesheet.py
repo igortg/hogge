@@ -79,8 +79,9 @@ class SessionTimeSheet(object):
                 summary["AvgLapTime"] = (summary["AvgLapTime"] + lap["LapLastLapTime"]) / 2 \
                     if summary["AvgLapTime"] else lap["LapLastLapTime"]
         summary["NumLaps"] = len(self.laps)
-        summary["AvgFuelConsumption"] = summary["TotalFuelConsumption"] / fuel_laps
-        summary["AvgFuelConsumptionPerMin"] = summary["TotalFuelConsumption"] / (fuel_laps_total_time / 60.0)
+        if fuel_laps:
+            summary["AvgFuelConsumption"] = summary["TotalFuelConsumption"] / fuel_laps
+            summary["AvgFuelConsumptionPerMin"] = summary["TotalFuelConsumption"] / (fuel_laps_total_time / 60.0)
         return summary
 
 
