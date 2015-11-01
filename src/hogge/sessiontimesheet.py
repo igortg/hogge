@@ -61,19 +61,24 @@ class SessionTimeSheet(object):
 
     def create_summary(self):
         summary = {
+            "NumLaps": 0,
             "TotalLapTime": 0,
             "TotalFuelConsumption": 0,
+            "AvgLapTime": 0,
             "AvgFuelConsumption": 0,
             "AvgFuelConsumptionPerMin": 0,
         }
         fuel_laps = 0
         fuel_laps_total_time = 0
         for lap in self.laps:
-            summary["TotalLapTime"] += lap["LapLastLapTime"]
             if lap["FuelConsumption"] > 0:
                 summary["TotalFuelConsumption"] += lap["FuelConsumption"]
                 fuel_laps += 1
                 fuel_laps_total_time += lap["LapLastLapTime"]
+            if lap["LapLastLapTime"] > 0:
+                summary["AvgLapTime"] = (summary["AvgLapTime"] + lap["LapLastLapTime"]) / 2 \
+                    if summary["AvgLapTime"] else lap["LapLastLapTime"]
+        summary["NumLaps"] = len(self.laps)
         summary["AvgFuelConsumption"] = summary["TotalFuelConsumption"] / fuel_laps
         summary["AvgFuelConsumptionPerMin"] = summary["TotalFuelConsumption"] / (fuel_laps_total_time / 60.0)
         return summary

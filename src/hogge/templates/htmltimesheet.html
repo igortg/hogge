@@ -7,10 +7,15 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <style type="text/css">
+    #container {
+      margin: 20px 20px 20px 30px
+    }
+    </style>
 
 </head>
 <body>
-<div class="container-fluid">
+<div class="container-fluid" id="container">
   <!-- Summary Panel row -->
   <div class="row">
     <div class="col-md-6">
@@ -20,7 +25,10 @@
           <table class="table">
             <tbody>
               <tr>
-                <td>Total Time:</td><td>{{ summary["TotalLapTime"]|laptime }}</td>
+                <td>Num. Laps:</td><td>{{ summary["NumLaps"] }}</td>
+              </tr>
+              <tr>
+                <td>Avg. Lap Time:</td><td>{{ summary["AvgLapTime"]|laptime }}</td>
               </tr>
               <tr>
                 <td>Avg. Consumption / Lap:</td><td>{{ summary["AvgFuelConsumption"]|fuel }}</td>
@@ -57,7 +65,11 @@
           {% for lap in timesheet.laps %}
           <tr>
             <td>{{ lap["Lap"] }}</td>
-            <td>{{ lap["LapLastLapTime"]|laptime }}</td>
+            <td>
+              {{ lap["LapLastLapTime"]|laptime }}
+              {% if lap["HasPitted"] %} <span class="label label-primary">Pitted</span>{% endif %}
+              {% if lap["HasOffTrack"] %} <span class="label label-danger">OffTrack</span>{% endif %}
+            </td>
             <td>{{ "%+.3f" |format(lap["LapLastLapDelta"]) }}</td>
             <td>{{ lap["FuelConsumption"]|fuel }}</td>
           </tr>

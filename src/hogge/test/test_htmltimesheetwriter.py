@@ -10,7 +10,7 @@ def test_htmldashboardwriter():
     timesheet.add_lap(dict(Lap=1, LapLastLapTime=60, FuelLevel=12.0))
     timesheet.add_lap(dict(Lap=2, LapLastLapTime=62.500, FuelLevel=10.4))
     timesheet.add_lap(dict(Lap=3, LapLastLapTime=64, FuelLevel=9))
-    timesheet.add_lap(dict(Lap=4, LapLastLapTime=95.312, FuelLevel=12)) #Refuel
+    timesheet.add_lap(dict(Lap=4, LapLastLapTime=95.312, FuelLevel=12, HasPitted=True)) #Refuel
     timesheet.add_lap(dict(Lap=5, LapLastLapTime=-1, FuelLevel=-1))
 
     writer = HtmlTimeSheetWriter()
