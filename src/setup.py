@@ -12,7 +12,7 @@ setup(
     description='',
     console=[{
         "dest_base": "hogge",
-        "script": "hogge/main.py",
+        "script": "main.py",
     }],
     zipfile = None,
     options={
