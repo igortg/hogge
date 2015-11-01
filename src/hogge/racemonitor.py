@@ -91,7 +91,8 @@ class RaceMonitor(object):
         from datetime import datetime
         telemeter = self._telemeter
         car = telemeter["DriverInfo"]["Drivers"][0]["CarScreenNameShort"]
+        driver = telemeter["DriverInfo"]["Drivers"][0]["UserName"]
         session_type = telemeter["SessionInfo"]["Sessions"][0]["SessionType"]
         track = telemeter["WeekendInfo"]["TrackName"]
-        time = datetime.now().strftime("%Y%m%d-%H%M")
-        return "{0} @ {1} - {2} ({3})".format(car, track, time, session_type)
+        time = datetime.now().strftime("%y%m%d-%H%M")
+        return "{0} @ {1} - {2} ({3})".format(car, track, time, driver)
