@@ -32,6 +32,7 @@ class Hogge(object):
         monitor = self._monitor
         while True:
             self._active_timesheet = SessionTimeSheet.create_default_timesheet()
+            monitor._timesheet = self._active_timesheet
             log("Waiting for iRacing...  (use Ctrl+C to interrupt)")
             monitor.wait_for_telemeter()
             log("Connected. Start Monitoring")

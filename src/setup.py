@@ -18,7 +18,7 @@ setup(
     options={
         "py2exe": {"optimize": 2,
                    "compressed": True,
-                   "excludes": "Tkinter",
+                   "excludes": ["Tkinter"],
                    "bundle_files": 0,
         }
     },

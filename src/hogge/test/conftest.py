@@ -27,9 +27,17 @@ class IRSDKMock(object):
         return self._query_index < len(MOCK_DATA)
 
 
-MOCK_DATA = []
+MOCK_DATA = [
+    dict(
+        Lap=0,
+        FuelLevel=12,
+        LapLastLapTime=0,
+        OnPitRoad=0,
+        CarIdxTrackSurface=[0],
+    )
+]
 
-for i in range(10):
+for i in range(1, 10):
     MOCK_DATA.append(
         dict(
             Lap=i // 3,

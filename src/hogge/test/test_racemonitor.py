@@ -5,7 +5,6 @@ from hogge.sessiontimesheet import SessionTimeSheet
 
 
 def test_racemonitor(irsdk):
-    test_dirname = os.path.dirname(__file__)
     dashboard = SessionTimeSheet.create_default_timesheet()
     hogge = RaceMonitor(irsdk, dashboard)
     hogge.start()
