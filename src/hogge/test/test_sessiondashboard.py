@@ -20,4 +20,7 @@ def test_timesheet():
 
     summary = timesheet.create_summary()
     assert summary["AvgFuelConsumption"] == 1.5
-    assert summary["AvgFuelConsumptionPerMin"] == 1.42
+    assert round(summary["AvgFuelConsumptionPerMin"], 2) == 1.42
+    assert round(summary["AvgLapTime"], 2) == 70.45
+    assert round(summary["AvgLapTime"], 2) == 70.45
+    assert round(summary["AvgBestLapTime"], 2) == 70.45
