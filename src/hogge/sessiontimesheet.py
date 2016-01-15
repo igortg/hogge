@@ -1,4 +1,4 @@
-from array import array
+import numpy as np
 from collections import namedtuple
 
 
@@ -11,6 +11,8 @@ class SessionTimeSheet(object):
     DT_LAP_TIME = "laptime"
     DT_TIME_DELTA = "timedelta"
     DT_FLAG = "flag"
+
+    BEST_LAPS_PERCENTILE = 75
 
     def __init__(self):
         self.name = None
@@ -67,21 +69,26 @@ class SessionTimeSheet(object):
             "AvgLapTime": 0,
             "AvgFuelConsumption": 0,
             "AvgFuelConsumptionPerMin": 0,
+            "AvgBestLapTime": 0,
         }
         fuel_laps = 0
         fuel_laps_total_time = 0
-        for lap in self.laps:
-            if lap["FuelConsumption"] > 0:
-                summary["TotalFuelConsumption"] += lap["FuelConsumption"]
+        laptimes = np.zeros(len(self.laps), np.double)
+        for lap, lap_registry in enumerate(self.laps):
+            laptimes[lap] = lap_registry["LapLastLapTime"]
+            if lap_registry["FuelConsumption"] > 0:
+                summary["TotalFuelConsumption"] += lap_registry["FuelConsumption"]
                 fuel_laps += 1
-                fuel_laps_total_time += lap["LapLastLapTime"]
-            if lap["LapLastLapTime"] > 0:
-                summary["AvgLapTime"] = (summary["AvgLapTime"] + lap["LapLastLapTime"]) / 2 \
-                    if summary["AvgLapTime"] else lap["LapLastLapTime"]
-        summary["NumLaps"] = len(self.laps)
+                fuel_laps_total_time += lap_registry["LapLastLapTime"]
         if fuel_laps:
             summary["AvgFuelConsumption"] = summary["TotalFuelConsumption"] / fuel_laps
             summary["AvgFuelConsumptionPerMin"] = summary["TotalFuelConsumption"] / (fuel_laps_total_time / 60.0)
+
+        summary["NumLaps"] = len(self.laps)
+        valid_laptime = laptimes.compress(laptimes > 0)
+        summary["AvgLapTime"] = valid_laptime.mean()
+        p = np.percentile(valid_laptime, self.BEST_LAPS_PERCENTILE)
+        summary["AvgBestLapTime"] = valid_laptime.compress(valid_laptime < p).mean()
         return summary
 
 
