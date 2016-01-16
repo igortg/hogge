@@ -35,7 +35,7 @@ class HtmlTimeSheetWriter(object):
                 return 0
 
         if value >= 60:
-            return "{:.0f}:{:02.0f}.{:03.0f}".format(value // 60, value % 60, get_microseconds(value))
+            return "{:.0f}:{:02.0f}.{:03.0f}".format(value // 60, math.floor(value % 60), get_microseconds(value))
         else:
             return "{:.0f}.{:.0f}".format(value, get_microseconds(value))
 
