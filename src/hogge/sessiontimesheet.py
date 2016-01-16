@@ -85,10 +85,11 @@ class SessionTimeSheet(object):
             summary["AvgFuelConsumptionPerMin"] = summary["TotalFuelConsumption"] / (fuel_laps_total_time / 60.0)
 
         summary["NumLaps"] = len(self.laps)
-        valid_laptime = laptimes.compress(laptimes > 0)
-        summary["AvgLapTime"] = valid_laptime.mean()
-        p = np.percentile(valid_laptime, self.BEST_LAPS_PERCENTILE)
-        summary["AvgBestLapTime"] = valid_laptime.compress(valid_laptime < p).mean()
+        valid_laptimes = laptimes.compress(laptimes > 0)
+        if len(valid_laptimes) > 1:
+            summary["AvgLapTime"] = valid_laptimes.mean()
+            p = np.percentile(valid_laptimes, self.BEST_LAPS_PERCENTILE)
+            summary["AvgBestLapTime"] = valid_laptimes.compress(valid_laptimes < p).mean()
         return summary
 
 
