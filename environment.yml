@@ -13,7 +13,7 @@ dependencies:
 - setuptools=18.4=py34_0
 - wheel=0.26.0=py34_1
 - xlsxwriter=0.7.6=py34_0
-- numpy=1.10.2-py34_0
+- numpy=1.10.1=py34_0
 - pip:
   - alembic==0.6.5
   - dataset==0.5.5
