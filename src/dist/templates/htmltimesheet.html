@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <style type="text/css">
+    #container {
+      margin: 20px 20px 20px 30px
+    }
+    </style>
+
+</head>
+<body>
+<div class="container-fluid" id="container">
+  <!-- Summary Panel row -->
+  <div class="row">
+    <div class="col-md-6">
+
+      <div id="summary-panel" class="panel panel-default">
+        <div class="panel-heading">Summary</div>
+          <table class="table">
+            <tbody>
+              <tr>
+                <td>Num. Laps:</td><td>{{ summary["NumLaps"] }}</td>
+              </tr>
+              <tr>
+                <td>Avg. Lap Time:</td><td>{{ summary["AvgLapTime"]|laptime }}</td>
+              </tr>
+              <tr>
+                <td>Avg. Consumption / Lap:</td><td>{{ summary["AvgFuelConsumption"]|fuel }}</td>
+              </tr>
+              <tr>
+                <td>Avg. Consumption / Min.:</td><td>{{ summary["AvgFuelConsumptionPerMin"]|fuel }}</td>
+              </tr>
+              <tr>
+                <td>Avg. Lap Time (Best 75%):</td><td>{{ summary["AvgBestLapTime"]|laptime }}</td>
+              </tr>
+            </tbody>
+          </table>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Laps Panel row -->
+  <div class="row">
+    <div class="col-md-12">
+
+      <div id="laps-panel" class="panel panel-default">
+        <div class="panel-heading">Laps</div>
+
+        <!-- Table -->
+        <table class="table">
+          <thead>
+          <tr>
+            <th>#</th>
+            <th>Time</th>
+            <th>Delta</th>
+            <th>Consumption</th>
+          </tr>
+          </thead>
+          <tbody>
+          {% for lap in timesheet.laps %}
+          <tr>
+            <td>{{ lap["Lap"] }}</td>
+            <td>
+              {{ lap["LapLastLapTime"]|laptime }}
+              {% if lap["HasPitted"] %} <span class="label label-primary">Pitted</span>{% endif %}
+              {% if lap["HasOffTrack"] %} <span class="label label-danger">OffTrack</span>{% endif %}
+            </td>
+            <td>{{ "%+.3f" |format(lap["LapLastLapDelta"]) }}</td>
+            <td>{{ lap["FuelConsumption"]|fuel }}</td>
+          </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

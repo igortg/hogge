@@ -23,4 +23,4 @@ def test_timesheet():
     assert round(summary["AvgFuelConsumptionPerMin"], 2) == 1.42
     assert round(summary["AvgLapTime"], 2) == 70.45
     assert round(summary["AvgLapTime"], 2) == 70.45
-    assert round(summary["AvgBestLapTime"], 2) == 70.45
+    assert round(summary["AvgBestLapTime"], 2) == 62.17

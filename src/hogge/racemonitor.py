@@ -6,6 +6,7 @@ class RaceMonitor(object):
 
     LAP_TIME_QUERY_DELAY = 3  # Last lap time info doesn't update instantaneous. Set a delay to workaround this.
     LAP_TIME_QUERY_RETRIES = 7  # Do some retries since last lap time may not be available even with LAP_TIME_QUERY_DELAY
+    MONITOR_FREQ = 6
 
     def __init__(self, telemeter, on_lap_callback=None):
         """
@@ -32,7 +33,7 @@ class RaceMonitor(object):
         lap_register = self._create_lap_register(telemeter["Lap"])
         while telemeter.is_connected:
             if not self._should_register_laps():
-                sleep(10)
+                sleep(60.0 / self.MONITOR_FREQ)
                 continue
             sleep(self.query_interval)
             self._query_lap_events(lap_register)

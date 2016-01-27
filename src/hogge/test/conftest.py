@@ -1,8 +1,9 @@
 import pytest
+import irsdk
 
 
 @pytest.fixture(scope="module")
-def irsdk():
+def irsdk_mock():
     return IRSDKMock()
 
 
@@ -34,6 +35,9 @@ MOCK_DATA = [
         LapLastLapTime=0,
         OnPitRoad=0,
         CarIdxTrackSurface=[0],
+        IsOnTrack=True,
+        SessionState=irsdk.SessionState.racing,
+        DriverInfo={"DriverCarIdx": 0}
     )
 ]
 
@@ -45,6 +49,9 @@ for i in range(1, 10):
             LapLastLapTime=68.32 + (i * 0.1),
             OnPitRoad=0,
             CarIdxTrackSurface=[0],
+            IsOnTrack=True,
+            SessionState=irsdk.SessionState.racing,
+            DriverInfo={"DriverCarIdx": 0}
         )
     )
 MOCK_DATA.append(
@@ -54,5 +61,8 @@ MOCK_DATA.append(
         LapLastLapTime=-1,
         OnPitRoad=1,
         CarIdxTrackSurface=[0],
+        IsOnTrack=True,
+        SessionState=irsdk.SessionState.racing,
+        DriverInfo={"DriverCarIdx": 0}
     )
 )
